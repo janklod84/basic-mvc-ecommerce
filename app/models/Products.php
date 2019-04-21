@@ -2,6 +2,11 @@
 namespace App\Models;
 
 use Core\Model;
+use Core\Validators\{
+RequiredValidator,
+NumericValidator
+};
+
 
 /**
  * @package App\Models\Products 
@@ -13,27 +18,21 @@ class Products extends Model
          * @var int      $id
          * @var datetime $created_at
          * @var datetime $updated_at
-         * @var string   $title
-         * @var string   $description
-         * @var int      $vendor
-         * @var int      $brand
-         * @var int      $category
-         * @var float    $list_price
-         * @var float    $price
+         * @var string   $name
+         * @var int      $price
+         * @var float    $list
          * @var float    $shipping
+         * @var string   $description
          * @var int      $deleted = 0
         */
         public $id;
         public $created_at;
         public $updated_at;
-        public $title;
-        public $description;
-        public $vendor;
-        public $brand;
-        public $category;
-        public $list_price;
+        public $name;
         public $price;
+        public $list;
         public $shipping;
+        public $description;
         public $deleted = 0;
 
 
@@ -44,7 +43,41 @@ class Products extends Model
         public function __construct()
         {
         	$table = 'products';
-        	$this->_softDelete = true;
+        	// $this->_softDelete = true;
         	parent::__construct($table);
+        }
+
+        /**
+         * Action to do before saving data
+         * @return void
+        */
+        public function beforeSave()
+        {
+            $this->timeStamps();
+        }
+
+        
+        /**
+         * Validation
+         * @return void
+        */
+        public function validator()
+        {
+              $requiredFields = [
+                 'name' => "Name", 
+                 'price' => 'Price',
+                 'list' => 'List Price',
+                 'shipping' => 'Shipping'
+              ];
+
+              foreach($requiredFields as $field => $display)
+              {
+                  $this->runValidation(new RequiredValidator($this, ['field' => $field, 'msg' => $display ." is required."]));
+              }
+
+              $this->runValidation(new NumericValidator($this, [
+                 'field' => 'price',
+                 'msg' => 'Price must be a number.'
+              ]));
         }
 }

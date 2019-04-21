@@ -10,7 +10,11 @@
 			"Register" : ["login", "register"]
 		},
 		"Products" : ["*"],
-		"Register" : ["logout"],
-        "Contacts" : ["*"]
+		"Register" : ["logout"]
+	},
+	"SuperAdmin" : {
+		"denied" : {},
+		"Admindashboard" : ["*"],
+		"Adminproducts" : ["*"]
 	}
 }

@@ -1,0 +1,11 @@
+{
+	"Dashboard" : "admindashboard/index",
+	"Products" : {
+        "View Products" : "adminproducts/index",
+        "separator" : " ",
+        "Add Product" : "adminproducts/add"
+	},
+	"Login" : "register/login",
+	"Logout" : "register/logout",
+	"Visit Site" : "home/index"
+}

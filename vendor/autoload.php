@@ -13,7 +13,7 @@
  * @param string $className 
  * @return void
  */
-function autoload($className)
+function semiautoload($className)
 {
      $classArray = explode('\\', $className); // 
      $class = array_pop($classArray); // get last element of array
@@ -27,4 +27,4 @@ function autoload($className)
 }
 
 
-spl_autoload_register('autoload');
+spl_autoload_register('semiautoload');

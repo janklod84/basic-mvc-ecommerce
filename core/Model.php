@@ -247,19 +247,30 @@ class Model
             */
 		    public function delete($id = '')
 		    {
-                  if($id == '' && $this->id == '')
-                  {
-                  	   return false;
-                  }
-
+                  if($id == '' && $this->id == '') { return false; }
                   $id = ($id == '') ? $this->id : $id;
 
-                  if($this->_softDelete)
+                  if($this->beforeDelete())
                   {
-                  	   return $this->update($id, ['deleted' => 1]);
+                      if($this->_softDelete)
+                      {
+                           $delete = $this->update($id, ['deleted' => 1]);
+                      }
+
+                      $delete = $this->_db->delete($this->_table, $id);
+
+                      if($delete)
+                      {
+                          $this->afterDelete();
+                      }
+
+                  }else{
+                     
+                      $delete = false;
+
                   }
 
-                  return $this->_db->delete($this->_table, $id);
+                  return $delete;
 		    }
 
             
@@ -390,21 +401,51 @@ class Model
             }
 
 
+
             /**
              * Do something Before Saving data
-             * @return void
+             * @return bool
             */
             public function beforeSave(){}
 
 
             /**
              * Do something After Saving data
-             * @return void
+             * @return bool
             */
             public function afterSave(){}
 
 
-            
+            /**
+             * Do something before delete
+             * Runs before save needs to return a boolean
+             * @return bool
+            */
+            public function beforeDelete(){ return true; }
+
+
+            /**
+             * Do something before delete
+             * @return bool
+            */
+            public function afterDelete(){}
+
+
+            /**
+             * Add timestamp
+             * @return void
+            */
+            public function timeStamps()
+            {
+                $now = date('Y-m-d H:i:s');
+                $this->updated_at = $now;
+                if(empty($this->id))
+                {
+                     $this->created_at = $now;
+                }
+            }
+
+
             /**
              * Determine if has property $id
              * and if is set
