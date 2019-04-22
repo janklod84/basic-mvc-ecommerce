@@ -162,8 +162,6 @@ class Router
               $menuFile = file_get_contents(ROOT . DS . 'app' . DS . $menu . '.json');
               $acl = json_decode($menuFile, true);
               
-              /** debug($acl, true); */
-
               foreach($acl as $key => $val)
               {
                   if(is_array($val))

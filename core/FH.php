@@ -4,6 +4,9 @@ use Core\Session;
 
 
 /**
+ * if you use bootstrap 4
+ * change class ="help-block" by class="invalid-feedback"
+ * for showing best feedback message
  * @package Core\FH
  */
 class FH 
@@ -30,15 +33,17 @@ class FH
         $divAttrs=[],
         $errors=[]
       ){
-        $divAttrs = self::blockErrors($divAttrs,$errors,$name);
-        $divString = self::stringifyAttrs($divAttrs);
-        $inputString = self::stringifyAttrs($inputAttrs);
-        $html = '<div' . $divString . '>';
-        $html .= '<label class="control-label" for="'.$name.'">'.$label.'</label>';
-        $html .= '<input type="'.$type.'" id="'.$name.'" name="'.$name.'" value="'.$value.'"'.$inputString.' />';
-        $html .= '<span class="help-block">'.self::errorMsg($errors,$name).'</span>';
-        $html .= '</div>';
-        return $html;
+          $inputAttrs = self::appendErrorClass($inputAttrs,$errors,$name,'is-invalid');
+          $divString = self::stringifyAttrs($divAttrs);
+          $inputString = self::stringifyAttrs($inputAttrs);
+          $id = $name;
+          $name = ($type == 'file' && array_key_exists('multiple', $inputAttrs))? $name.'[]' : $name;
+          $html = '<div' . $divString . '>';
+          $html .= '<label class="control-label" for="'.$id.'">'.$label.'</label>';
+          $html .= '<input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.$inputString.' />';
+          $html .= '<span class="help-block">'.self::errorMsg($errors,$id).'</span>';
+          $html .= '</div>';
+          return $html;
       }
 
       /**
@@ -246,6 +251,30 @@ class FH
           return $html;
       }
 
+      
+      /**
+         * adds an error class name to attrs if there is an error
+         * @method appendErrorClass
+         * @param  array       $divAttrs default div attributes array
+         * @param  array       $errors   pass in the form errors
+         * @param  string      $name     name of the field
+         * @param  string      $class    class name to be applied
+         * @return array                 returns an array with an appended class in the div attributes array
+      */
+      public static function appendErrorClass($attrs,$errors,$name,$class)
+      {
+            if(array_key_exists($name,$errors))
+            {
+                if(array_key_exists('class',$attrs))
+                {
+                    $attrs['class'] .= " " . $class;
+                }else{
+                    $attrs['class'] = $class;
+                }
+            }
+            return $attrs;
+        }
+        
 
       /**
        * Adds a class to the surrounding div array if there are errors. This is used to style the form elements

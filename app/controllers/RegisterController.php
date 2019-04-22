@@ -13,13 +13,6 @@ use App\Models\Login;
 class RegisterController extends Controller 
 {
       
-      /*
-      public function onConstruct()
-      {
-           $this->view->setLayout('default');
-      }
-      */
-
       /**
        * Constructor
        * @param string $controller 

@@ -23,10 +23,14 @@ use Core\FH;
             'class' => 'form-group'
     	], $this->displayErrors); ?>
 
-    <label for="productImages" class="control-label">Upload Product Images:</label>
-    <input type="file" name="productImages[]" id="productImages" multiple>
+    
+    <div class="row">
+      <?= FH::inputBlock('file',"Upload ProductImages:",'productImages','',['class'=>'form-control','multiple'=>'multiple'],['class'=>'form-group col-md-6'], $this->displayErrors) ?>
+    </div>
 
-	<?= FH::submitBlock('Save', ['class' => 'btn btn-large btn-primary'], ['class' => 'text-right col-md-12']); ?>
+	<div class="row">
+		<?= FH::submitBlock('Save', ['class' => 'btn btn-large btn-primary'], ['class' => 'text-right col-md-12']); ?>
+	</div>
 </form>
 
 

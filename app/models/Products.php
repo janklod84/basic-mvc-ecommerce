@@ -32,7 +32,6 @@ class Products extends Model
         public $price;
         public $list;
         public $shipping;
-        public $description;
         public $body;
         public $deleted = 0;
 
@@ -40,17 +39,9 @@ class Products extends Model
         # There fields 'll be guarded all times
         const blackList = ['id', 'deleted'];
 
+        protected static $_table = 'products';
+        protected static $_softDelete = true;
 
-        /**
-         * Constructor
-         * @return void
-        */
-        public function __construct()
-        {
-        	$table = 'products';
-        	// $this->_softDelete = true;
-        	parent::__construct($table);
-        }
 
         /**
          * Action to do before saving data
@@ -58,17 +49,7 @@ class Products extends Model
         */
         public function beforeSave()
         {
-            $this->timeStamps();
-        }
-
-
-        /**
-         * After save
-         * @return void
-        */
-        public function afterSave()
-        {
-             $this->id = $this->_db->lastID();
+              $this->timeStamps();
         }
 
         
@@ -94,6 +75,16 @@ class Products extends Model
               $this->runValidation(new NumericValidator($this, [
                  'field' => 'price',
                  'msg' => 'Price must be a number.'
+              ]));
+
+              $this->runValidation(new NumericValidator($this, [
+                 'field' => 'list',
+                 'msg' => 'List Price must be a number.'
+              ]));
+
+              $this->runValidation(new NumericValidator($this, [
+                 'field' => 'shipping',
+                 'msg' => 'Shipping must be a number.'
               ]));
         }
 }

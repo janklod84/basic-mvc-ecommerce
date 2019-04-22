@@ -21,6 +21,7 @@ use Core\Session;
 
     <?php include 'admin_menu.php'; ?>
     <div class="container-fluid" style="min-height:calc(100% - 125px);">
+        <?= Session::displayMsg() ?>
         <?= $this->content('body'); ?>
     </div>
     

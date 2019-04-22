@@ -10,16 +10,6 @@ use Core\H;
 class HomeController extends Controller 
 {
 
-      /**
-       * Constructor
-       * @param string $controller 
-       * @param string $action 
-       * @return void
-      */
-      public function __construct($controller, $action)
-      {
-           parent::__construct($controller, $action);
-      }
 
 
       /**
@@ -31,18 +21,4 @@ class HomeController extends Controller
            $this->view->render('home/index');
   	  }
 
-      
-      /**
-       * Test Ajax Request
-       * @return mixed
-      */
-      public function testAjaxAction()
-      {
-           $response = [
-            'success' => true,
-            'data' => ['id' => 23, 'name' => 'Michelle', 'favorite_food' => 'bread']
-          ];
-
-          $this->jsonResponse($response);
-      }
 }

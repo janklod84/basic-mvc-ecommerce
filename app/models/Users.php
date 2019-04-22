@@ -1,9 +1,8 @@
-<?php 
+<?php
 namespace App\Models;
-
 use Core\Model;
 use App\Models\Users;
-use App\Models\UserSession;
+use App\Models\UserSessions;
 use Core\Cookie;
 use Core\Session;
 use Core\Validators\MinValidator;
@@ -13,336 +12,162 @@ use Core\Validators\EmailValidator;
 use Core\Validators\MatchesValidator;
 use Core\Validators\UniqueValidator;
 
-
-
-class Users  extends Model
+class Users extends Model 
 {
 
-       
-      /**
-        * @var 
-       */
-       private $_isLoggedIn;
 
-       /**
-        * @var string
-       */
-       private $_sessionName;
-       
-       
-       /**
-        * @var string
-       */
-       private $_cookieName;
+        protected static $_table='users', $_softDelete = true, $_confirm;
+        public static $currentLoggedInUser = null;
+        public $id,$username,$email,$password,$fname,$lname,$acl,$deleted = 0,$confirm;
+        const blackListedFormKeys = ['id','deleted'];
 
+        public function validator()
+        {
+            $this->runValidation(new RequiredValidator($this,['field'=>'fname','msg'=>'First Name is required.']));
 
-       /**
-        * @var string
-       */
-       private $_confirm; 
+            $this->runValidation(new RequiredValidator($this,['field'=>'lname','msg'=>'Last Name is required.']));
 
-       
-       /**
-        * @var 
-       */
-       public static $currentLoggedInUser = null;
+            $this->runValidation(new RequiredValidator($this,['field'=>'email','msg'=>'Email is required.']));
 
+            $this->runValidation(new EmailValidator($this, ['field'=>'email','msg'=>'You must provide a valid email address']));
 
+            $this->runValidation(new MaxValidator($this,['field'=>'email','rule'=>150,'msg'=>'Email must be less than 150 characters.']));
 
-       /**
-        * Table properties
-        * 
-        * @var int $id
-        * @var string $username
-        * @var string $email
-        * @var string $password
-        * @var string $fname
-        * @var string $lname
-        * @var string $acl
-        * @var int $deleted
-       */
-       public $id;
-       public $username;
-       public $email;
-       public $password;
-       public $fname;
-       public $lname;
-       public $acl;
-       public $deleted = 0;
-     
-     
+            $this->runValidation(new MinValidator($this,['field'=>'username','rule'=>6,'msg'=>'Username must be at least 6 characters.']));
 
+            $this->runValidation(new MaxValidator($this,['field'=>'username','rule'=>150,'msg'=>'Username must be less than 150 characters.']));
 
-     /**
-      * Constructor
-      * @param string $user 
-      * @return void
-     */
-     public function __construct($user = '')
-     {
-          $table = 'users';
-          parent::__construct($table);
-          $this->_sessionName = CURRENT_USER_SESSION_NAME;
-          $this->_cookieName  = REMEMBER_ME_COOKIE_NAME;
-          $this->_softDelete = true;
+            $this->runValidation(new UniqueValidator($this,['field'=>['username','deleted'],'msg'=>'That username already exists. Please choose a new one.']));
 
-          if($user != '')
-          {
-          	   if(is_int($user))
-          	   {
-          	   	   $u = $this->_db->findFirst('users', [
-                        'conditions' => 'id = ?', 
-                        'bind' => [$user],   
-                        'App\\Models\\Users'
-          	   	   ]);
+            $this->runValidation(new RequiredValidator($this,['field'=>'password','msg'=>'Password is required.']));
 
-          	   }else{
+            $this->runValidation(new MinValidator($this,['field'=>'password','rule'=>6,'msg'=>'Password must be a minimum of 6 characters.']));
 
-          	   	   $u = $this->_db->findFirst('users', [
-                        'conditions' => 'username = ?',
-                        'bind' => [$user],  
-                        'App\\Models\\Users'
-          	   	   ]);
-          	   }
+            if($this->isNew())
+            {
+              $this->runValidation(new MatchesValidator($this,['field'=>'password','rule'=>$this->confirm,'msg'=>"Your passwords do not match."]));
+            }
+        }
 
-          	   if($u)
-          	   {
-          	   	   foreach($u as $key => $val)
-          	   	   {
-          	   	   	    $this->{$key} = $val;
-          	   	   }
-          	   }
-          }
-     }// end construct
+        public function beforeSave()
+        {
+            $this->timeStamps();
 
-     
-     /**
-      * Validator fields
-      * @return bool
-     */
-     public function validator()
-     {
+            if($this->isNew())
+            {
+                $this->password = password_hash($this->password, PASSWORD_DEFAULT);
+            }
+        }
 
-         # Validation Required field
-         $this->runValidation(new RequiredValidator($this, [
-            'field' => 'fname', 
-            'msg' => 'First Name is required.'
-         ]));
+        public static function findByUsername($username) 
+        {
+             return self::findFirst(['conditions'=> "username = ?", 'bind'=>[$username]]);
+        }
 
-         $this->runValidation(new RequiredValidator($this, [
-            'field' => 'lname', 
-            'msg' => 'Last Name is required.'
-         ]));
+        public static function currentUser() 
+        {
+            if(!isset(self::$currentLoggedInUser) && Session::exists(CURRENT_USER_SESSION_NAME)) {
+              self::$currentLoggedInUser = self::findById((int)Session::get(CURRENT_USER_SESSION_NAME));
+            }
+            return self::$currentLoggedInUser;
+        }
 
-         $this->runValidation(new RequiredValidator($this, [
-            'field' => 'email', 
-            'msg' => 'Email is required.'
-         ]));
+        public function login($rememberMe=false) 
+        {
+            Session::set(CURRENT_USER_SESSION_NAME, $this->id);
 
-         $this->runValidation(new EmailValidator($this, [
-             'field' => 'email', 
-             'msg' => 'Email must provide a valid email address.'
-         ]));
+            if($rememberMe) 
+            {
 
-         $this->runValidation(new MaxValidator($this, [
-              'field' => 'email', 
-              'rule' => 150, 
-              'msg' => 'Email must be less than 150 characters.'
-         ]));
-         
+              $hash = md5(uniqid() + rand(0, 100));
+              $user_agent = Session::uagent_no_version();
+              Cookie::set(REMEMBER_ME_COOKIE_NAME, $hash, REMEMBER_ME_COOKIE_EXPIRY);
+              $fields = ['session'=>$hash, 'user_agent'=>$user_agent, 'user_id'=>$this->id];
+              self::$_db->query("DELETE FROM user_sessions WHERE user_id = ? AND user_agent = ?", [$this->id, $user_agent]);
+              $us = new UserSessions();
+              $us->assign($fields);
+              $us->save();
+              // self::$_db->insert('user_sessions', $fields);
+            }
+        }
 
+        public static function loginUserFromCookie() 
+        {
+              $userSession = UserSessions::getFromCookie();
 
-        # Validation Min and Max
-         $this->runValidation(new MinValidator($this, [
-              'field' => 'username', 
-              'rule' => 6, 
-              'msg' => 'Username must be at least 6 characters.'
-         ]));
+              if($userSession && $userSession->user_id != '') {
+                $user = self::findById((int)$userSession->user_id);
+                if($user) {
+                  $user->login();
+                }
+                return $user;
+              }
+              return;
+        }
 
-         $this->runValidation(new MaxValidator($this, [
-              'field' => 'username', 
-              'rule' => 150, 
-              'msg' => 'Username must be less than 150 characters.'
-         ]));
-         
-         $this->runValidation(new UniqueValidator($this, [
-              'field' => 'username',  
-              'msg' => 'That username already exists. Please choose a new one.'
-         ]));
+        public function logout() 
+        {
+              $userSession = UserSessions::getFromCookie();
+              if($userSession) $userSession->delete();
+              Session::delete(CURRENT_USER_SESSION_NAME);
+              if(Cookie::exists(REMEMBER_ME_COOKIE_NAME)) {
+                Cookie::delete(REMEMBER_ME_COOKIE_NAME);
+              }
+              self::$currentLoggedInUser = null;
+              return true;
+        }
 
-         $this->runValidation(new RequiredValidator($this, [
-            'field' => 'password', 
-            'msg' => 'Password is required.'
-         ]));
+        public function acls() 
+        {
+            if(empty($this->acl)) return [];
+            return json_decode($this->acl, true);
+        }
 
-         $this->runValidation(new MinValidator($this, [
-              'field' => 'password', 
-              'rule' => 6, 
-              'msg' => 'Password must be a minimum 6 characters.'
-         ]));
+        public static function addAcl($user_id,$acl)
+        {
+              $user = self::findById($user_id);
+              if(!$user) return false;
+              $acls = $user->acls();
+              if(!in_array($acl,$acls)){
+                $acls[] = $acl;
+                $user->acl = json_encode($acls);
+                $user->save();
+              }
+              return true;
+        }
 
-         if($this->isNew())
-         {
-             $this->runValidation(new MatchesValidator($this, [
-                  'field' => 'password', 
-                  'rule' => $this->_confirm, 
-                  'msg' => 'Your passwords do not match.'
-            ]));
-         }
-     } 
+        public static function removeAcl($user_id, $acl)
+        {
+              $user = self::findById($user_id);
+              if(!$user) return false;
+              $acls = $user->acls();
+              if(in_array($acl,$acls)){
+                $key = array_search($acl,$acls);
+                unset($acls[$key]);
+                $user->acl = json_encode($acls);
+                $user->save();
+              }
+              return true;
+        }
 
-  
-     
-     /**
-      * Action to do before saving data
-      * @return void
-     */
-     public function beforeSave()
-     {
-         if($this->isNew())
-         {
-             $this->password = password_hash($this->password, PASSWORD_DEFAULT);
-         }
-     }
-     
-     /**
-      * Find user by username
-      * @param string $username 
-      * @return mixed
-     */
-     public function findByUsername($username)
-     {
-     	  return $this->findFirst([
-		            'conditions' => "username = ?",
-		            'bind' => [$username]
-     	        ]);
-     }
-
-     
-
-     /**
-      * Return current logged User
-      * @return 
-     */
-     public static function currentUser()
-     {
-           if(!isset(self::$currentLoggedInUser) && Session::exists(CURRENT_USER_SESSION_NAME))
-           {
-                  $u = new Users((int) Session::get(CURRENT_USER_SESSION_NAME));
-                  self::$currentLoggedInUser = $u;
-           }
-
-           return self::$currentLoggedInUser;
-     }
-
-
-     
-     /**
-      * Login user
-      * @param bool $rememberMe 
-      * @return mixed
-     */
-     public function login($rememberMe = false)
-     {
-          Session::set($this->_sessionName, $this->id);
-
-          if($rememberMe)
-          {
-          	  $hash = md5(uniqid() + rand(0, 100));
-          	  $user_agent = Session::uagent_no_version();
-          	  Cookie::set($this->_cookieName, $hash, REMEMBER_ME_COOKIE_EXPIRY);
-          	  $fields = ['session' => $hash, 'user_agent' => $user_agent, 'user_id' => $this->id];
-
-          	  $this->_db->query("DELETE FROM user_sessions WHERE user_id = ? AND user_agent = ?", [$this->id, $user_agent]);
-
-          	  $this->_db->insert('user_sessions', $fields);
-          }
-     }
-
-      
-      /**
-       * Login User From Cookie
-       * @return 
-      */
-      public static function loginUserFromCookie()
-      {
-           $userSession = UserSessions::getFromCookie();
-
-           if($userSession && $userSession->user_id != '')
-           {
-                 $user= new self((int) $userSession->user_id);
-
-                 if($user)
-                 {
-                     $user->login();
-                 }
-                 return $user;
-           }
-
-           return;
-      }
-
-
-     /**
-      * User logout
-      * @return bool
-     */
-     public function logout()
-     {
-         $userSession = UserSessions::getFromCookie();
-         
-         if($userSession)
-         {
-             $userSession->delete();
-         }
-
-         Session::delete(CURRENT_USER_SESSION_NAME);
-
-         if(Cookie::exists(REMEMBER_ME_COOKIE_NAME))
-         {
-             Cookie::delete(REMEMBER_ME_COOKIE_NAME);
-         }
-
-         self::$currentLoggedInUser = null;
-         return true;
-     }
-
-     
     
-     /**
-      * Get user acl
-      * @return mixed
-     */
-     public function acls()
-     {
-          if(empty($this->acl))
-          {
-                return [];
-          }
-
-          return json_decode($this->acl, true);
-     }
+        /**
+        * Set Confirm
+        * @param string $value 
+        * @return void
+        */
+       public function setConfirm($value)
+       {
+            $this->_confirm = $value;
+       }
 
      
-     /**
-      * Set Confirm
-      * @param string $value 
-      * @return void
-     */
-     public function setConfirm($value)
-     {
-          $this->_confirm = $value;
-     }
-
-     
-     /**
-      * Get Confirm
-      * @return string
-     */
-     public function getConfirm()
-     {
-         return $this->_confirm;
-     }
-
-
+       /**
+        * Get Confirm
+        * @return string
+       */
+       public function getConfirm()
+       {
+           return $this->_confirm;
+       }
 }

@@ -265,7 +265,7 @@ class DB
        {
              if($this->read($table, $params, $class))
              {
-             	 return $this->first();
+             	    return $this->first();
              }
 
              return false;

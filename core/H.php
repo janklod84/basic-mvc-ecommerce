@@ -2,6 +2,7 @@
 namespace Core;
 
 
+use App\Models\Users;
 
 /**
  * Helper
@@ -45,17 +46,14 @@ class H
 			 * Return current page
 			 * @return string
 			*/
-			public static function  currentPage()
+			public static function currentPage() 
 			{
 			    $currentPage = $_SERVER['REQUEST_URI'];
-
-			    if($currentPage == PROOT || $currentPage == PROOT . 'home/index')
-			    {
-			         $currentPage = PROOT . 'home';
+			    if($currentPage == PROOT || $currentPage == PROOT. strtolower(DEFAULT_CONTROLLER) .'/index') {
+			      $currentPage = PROOT . strtolower(DEFAULT_CONTROLLER);
 			    }
-
 			    return $currentPage;
-			}
+            }
 
 
 			/**
@@ -67,4 +65,37 @@ class H
 			{
 			    return get_object_vars($obj);
 			}
+
+
+			public static function buildMenuListItems($menu,$dropdownClass="")
+			{
+			    ob_start();
+			    $currentPage = self::currentPage();
+			    foreach($menu as $key => $val):
+			      $active = '';
+			      if($key == '%USERNAME%')
+			      {
+			         $key = (Users::currentUser()) ? "Hello " .Users::currentUser()->fname : $key;
+			      }
+			      if(is_array($val)): ?>
+			        <li class="dropdown">
+			          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?=$key?> <span class="caret"></span></a>
+			          	<ul class="<?=$dropdownClass?>">
+			            <?php foreach($val as $k => $v):
+			              $active = ($v == $currentPage)? 'active':''; ?>
+			              <?php if($k == 'separator'): ?>
+			                <li role="separator" class="divider"></li>
+			              <?php else: ?>
+			                <li><a class="<?= $active ?>" href="<?= $v ?>"><?= $k ?></a></li>
+			              <?php endif; ?>
+			            <?php endforeach; ?>
+			          </ul>
+			         </li>
+				      <?php else:
+				        $active = ($val == $currentPage)? 'active':''; ?>
+				        <li><a class="<?= $active ?>" href="<?= $val ?>"><?= $key ?></a></li>
+				      <?php endif; ?>
+				    <?php endforeach;
+				    return ob_get_clean();
+  		  }
 }
