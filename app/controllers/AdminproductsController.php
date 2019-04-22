@@ -3,6 +3,8 @@ namespace App\Controllers;
 
 use Core\Controller;
 use App\Models\Products;
+use App\Models\ProductImages;
+use Core\H;
 
 
 # http://eshop.loc/adminproducts
@@ -35,17 +37,44 @@ class AdminproductsController extends Controller
 
       /**
        * add action
+       * $product->assign(request-params, [there params will be not assigned], false)
+       * Ex:
+       * if false ['price', 'shipping'] will be BlackList, buy default it's setted true
+       * debug How blackList and WhiteList work
+       * H::debug($product);
+       * 
        * @return mixed
       */
       public function addAction()
       {
            $product = new Products();
-           
+           $productImage = new ProductImages();
+
            if($this->request->isPost())
            {
+                $files = $_FILES['productImages'];
                 $this->request->csrfCheck();
-                $product->assign($this->request->get());
+                $imagesErrors = $productImage->validateImages($files);
+
+                if(is_array($imagesErrors))
+                {
+                    $msg = "";
+                    foreach($imagesErrors as $name => $message)
+                    {
+                        $msg .= $message . " ";
+                    }
+                    $product->addErrorMessage('productImage', trim($msg));
+                }
+                $product->body = $this->request->get('body');
+                $product->assign($this->request->get(), Products::blackList);
                 $product->save();
+
+                if($product->validationPassed())
+                {
+                     // upload images
+                     $structuredFiles = ProductImages::restructureFiles($files);
+                     ProductImages::uploadProductImage($product->id, $structuredFiles);
+                }
            }
 
            $this->view->product = $product;

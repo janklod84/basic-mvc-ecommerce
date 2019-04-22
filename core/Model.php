@@ -160,7 +160,8 @@ class Model
 
             
             /**
-             * Return insert or update record
+             * Save the current properties to the database
+             * Excecute insert or update record
              * @return bool
             */
             public function save()
@@ -304,29 +305,40 @@ class Model
 		    }
 
             
+
             /**
-             * Assignement for exemple data from request $_POST
-             * 
-             * @param array $params 
-             * @return void
+               * Update the object with an associative array
+               * Work like fields $guarded = [] , $fillable = [] in Laravel
+               * 
+               * @method assign
+               * @param  array   $params    associative array of values to update ['property'=>'new value']
+               * @param  array   $list      (optional) indexed array of keys that are to be validated against
+               * @param  boolean $blackList (optional) if blacklist is set to true the list param will be treated like a blacklist else it will be treated like a whitelist
+               * @return object             returns a model object allows for chaining.
             */
-		    public function assign($params)
-		    {
-		    	 if(!empty($params))
-		    	 {
-		    	 	 foreach($params as $key => $val)
-		    	 	 {
-		    	 	 	 if(property_exists($this, $key))
-		    	 	 	 {
-		    	 	 	 	  $this->{$key} = $val;
-		    	 	 	 }
-		    	 	 }
+            public function assign($params, $list=[], $blackList=true) 
+            {
+                    foreach($params as $key => $val) 
+                    {
+                          // check if there is permission to update the object
+                          $whiteListed = true;
+                          if(sizeof($list) > 0)
+                          {
+                              if($blackList)
+                              {
+                                $whiteListed = !in_array($key,$list);
+                              }else{
+                                $whiteListed = in_array($key,$list);
+                              }
+                          }
 
-		    	 	 return true;
-		    	 }
-
-		    	 return false;
-		    }
+                          if(property_exists($this,$key) && $whiteListed)
+                          {
+                              $this->{$key} = $val;
+                          }
+                    }
+                    return $this;
+            }
 
             
             /**
@@ -432,7 +444,7 @@ class Model
 
 
             /**
-             * Add timestamp
+             * Generate timestamp for update and insert
              * @return void
             */
             public function timeStamps()

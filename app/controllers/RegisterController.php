@@ -12,6 +12,13 @@ use App\Models\Login;
 // http://mvc.loc/register/[login]
 class RegisterController extends Controller 
 {
+      
+      /*
+      public function onConstruct()
+      {
+           $this->view->setLayout('default');
+      }
+      */
 
       /**
        * Constructor

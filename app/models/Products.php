@@ -33,7 +33,12 @@ class Products extends Model
         public $list;
         public $shipping;
         public $description;
+        public $body;
         public $deleted = 0;
+
+        
+        # There fields 'll be guarded all times
+        const blackList = ['id', 'deleted'];
 
 
         /**
@@ -56,6 +61,16 @@ class Products extends Model
             $this->timeStamps();
         }
 
+
+        /**
+         * After save
+         * @return void
+        */
+        public function afterSave()
+        {
+             $this->id = $this->_db->lastID();
+        }
+
         
         /**
          * Validation
@@ -67,7 +82,8 @@ class Products extends Model
                  'name' => "Name", 
                  'price' => 'Price',
                  'list' => 'List Price',
-                 'shipping' => 'Shipping'
+                 'shipping' => 'Shipping',
+                 'body' => 'Body'
               ];
 
               foreach($requiredFields as $field => $display)

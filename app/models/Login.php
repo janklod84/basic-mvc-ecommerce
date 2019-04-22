@@ -44,8 +44,8 @@ class Login extends Model
       	  ]));
 
       	   $this->runValidation(new RequiredValidator($this, [
-             'field' => 'password',  
-             'msg' => 'Password is required'
+               'field' => 'password',  
+               'msg' => 'Password is required'
       	  ]));
       }
 

@@ -32,7 +32,20 @@ require_once(ROOT . DS . 'config' . DS . 'config.php');
  | ------------------------------------------------------------
 */
 
-require_once 'vendor/autoload.php';
+// require_once 'vendor/autoload.php';
+function semiautoload($className)
+{
+	    $classAry = explode('\\',$className);
+	    $class = array_pop($classAry);
+	    $subPath = strtolower(implode(DS,$classAry));
+	    $path = ROOT . DS . $subPath . DS . $class . '.php';
+
+	    if(file_exists($path)){
+	      require_once($path);
+	    }
+}
+
+spl_autoload_register('semiautoload');
 
 
 /*
