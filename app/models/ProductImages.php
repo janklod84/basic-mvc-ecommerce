@@ -97,7 +97,7 @@ class ProductImages extends Model
                {
                     if(!file_exists($path))
                     {
-                         mkdir($path);
+                         mkdir($path, 0777, true);
                     }
                     move_uploaded_file($file['tmp_name'], ROOT . DS . $image->url);
                }
