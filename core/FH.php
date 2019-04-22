@@ -41,7 +41,7 @@ class FH
           $html = '<div' . $divString . '>';
           $html .= '<label class="control-label" for="'.$id.'">'.$label.'</label>';
           $html .= '<input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.$inputString.' />';
-          $html .= '<span class="help-block">'.self::errorMsg($errors,$id).'</span>';
+          $html .= '<span class="help-block">'.self::errorMsg($errors, $id).'</span>';
           $html .= '</div>';
           return $html;
       }

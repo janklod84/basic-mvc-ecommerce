@@ -17,9 +17,9 @@ class Model
              * @var bool    $_validates
              * @var array   $_validationErrors 
 	        */
-		    protected $_modelName;
-            protected $_validates = true;
-            protected $_validationErrors = [];
+	        protected $_modelName;
+          protected $_validates = true;
+          protected $_validationErrors = [];
 
 	        
 	        /**
@@ -29,13 +29,13 @@ class Model
 	        */
             protected static $_db;
             protected static $_table;
-		    protected static $_softDelete = false;
+		        protected static $_softDelete = false;
 
 
 	        /**
 	         * @var int
 	        */
-		    public $id;
+		      public $id;
 
 
 	        
@@ -45,8 +45,8 @@ class Model
 	        */
 		    public function __construct()
 		    {
-                   $this->_modelName = $this->_getTableName();
-                   $this->onConstruct();
+              $this->_modelName = $this->_getTableName();
+              $this->onConstruct();
 		    }
 
             
@@ -191,7 +191,7 @@ class Model
           */
           public static function findById($id)
           {
-             return static::findFirst(['conditions'=>"id = ?", 'bind' => [$id]]);
+             return static::findFirst(['conditions' => "id = ?", 'bind' => [$id]]);
           }
 
 

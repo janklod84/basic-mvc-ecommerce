@@ -17,6 +17,14 @@ define('DS', DIRECTORY_SEPARATOR);
 define('ROOT', dirname(__FILE__));
 
 
+function dbug($arr, $die = true)
+{
+	echo '<pre>';
+	print_r($arr);
+	echo '</pre>';
+	if(!$die) die;
+}
+
 /*
  | ------------------------------------------------------------
  |          LOAD CONFIGURATION AND HELPER FUNCTION

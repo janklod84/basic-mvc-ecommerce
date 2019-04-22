@@ -16,9 +16,10 @@ class Users extends Model
 {
 
 
-        protected static $_table='users', $_softDelete = true, $_confirm;
+        protected static $_table='users', $_softDelete = true; 
+        private $_confirm;
         public static $currentLoggedInUser = null;
-        public $id,$username,$email,$password,$fname,$lname,$acl,$deleted = 0,$confirm;
+        public $id, $username, $email, $password, $fname, $lname, $acl, $deleted = 0;
         const blackListedFormKeys = ['id','deleted'];
 
         public function validator()
@@ -37,15 +38,15 @@ class Users extends Model
 
             $this->runValidation(new MaxValidator($this,['field'=>'username','rule'=>150,'msg'=>'Username must be less than 150 characters.']));
 
-            $this->runValidation(new UniqueValidator($this,['field'=>['username','deleted'],'msg'=>'That username already exists. Please choose a new one.']));
+            $this->runValidation(new UniqueValidator($this, ['field'=>['username','deleted'],'msg'=>'That username already exists. Please choose a new one.']));
 
-            $this->runValidation(new RequiredValidator($this,['field'=>'password','msg'=>'Password is required.']));
+            $this->runValidation(new RequiredValidator($this, ['field'=>'password','msg'=>'Password is required.']));
 
-            $this->runValidation(new MinValidator($this,['field'=>'password','rule'=>6,'msg'=>'Password must be a minimum of 6 characters.']));
+            $this->runValidation(new MinValidator($this, ['field'=>'password','rule'=>6,'msg'=>'Password must be a minimum of 6 characters.']));
 
             if($this->isNew())
             {
-              $this->runValidation(new MatchesValidator($this,['field'=>'password','rule'=>$this->confirm,'msg'=>"Your passwords do not match."]));
+              $this->runValidation(new MatchesValidator($this, ['field'=>'password','rule'=>$this->confirm,'msg'=>"Your passwords do not match."]));
             }
         }
 
@@ -66,28 +67,26 @@ class Users extends Model
 
         public static function currentUser() 
         {
-            if(!isset(self::$currentLoggedInUser) && Session::exists(CURRENT_USER_SESSION_NAME)) {
-              self::$currentLoggedInUser = self::findById((int)Session::get(CURRENT_USER_SESSION_NAME));
+            if(!isset(self::$currentLoggedInUser) && Session::exists(CURRENT_USER_SESSION_NAME)) 
+            {
+              self::$currentLoggedInUser = self::findById((int) Session::get(CURRENT_USER_SESSION_NAME));
             }
             return self::$currentLoggedInUser;
         }
 
-        public function login($rememberMe=false) 
+        public function login($rememberMe = false) 
         {
             Session::set(CURRENT_USER_SESSION_NAME, $this->id);
-
             if($rememberMe) 
             {
-
               $hash = md5(uniqid() + rand(0, 100));
               $user_agent = Session::uagent_no_version();
               Cookie::set(REMEMBER_ME_COOKIE_NAME, $hash, REMEMBER_ME_COOKIE_EXPIRY);
-              $fields = ['session'=>$hash, 'user_agent'=>$user_agent, 'user_id'=>$this->id];
+              $fields = ['session'=> $hash, 'user_agent' => $user_agent, 'user_id'=> $this->id];
+
               self::$_db->query("DELETE FROM user_sessions WHERE user_id = ? AND user_agent = ?", [$this->id, $user_agent]);
-              $us = new UserSessions();
-              $us->assign($fields);
-              $us->save();
-              // self::$_db->insert('user_sessions', $fields);
+
+              self::$_db->insert('user_sessions', $fields);
             }
         }
 
@@ -95,12 +94,15 @@ class Users extends Model
         {
               $userSession = UserSessions::getFromCookie();
 
-              if($userSession && $userSession->user_id != '') {
-                $user = self::findById((int)$userSession->user_id);
-                if($user) {
-                  $user->login();
-                }
-                return $user;
+              if($userSession && $userSession->user_id != '') 
+              {
+                  $user = self::findById((int) $userSession->user_id);
+
+                  if($user) 
+                  {
+                      $user->login();
+                  }
+                  return $user;
               }
               return;
         }
@@ -108,13 +110,21 @@ class Users extends Model
         public function logout() 
         {
               $userSession = UserSessions::getFromCookie();
-              if($userSession) $userSession->delete();
-              Session::delete(CURRENT_USER_SESSION_NAME);
-              if(Cookie::exists(REMEMBER_ME_COOKIE_NAME)) {
-                Cookie::delete(REMEMBER_ME_COOKIE_NAME);
-              }
-              self::$currentLoggedInUser = null;
-              return true;
+         
+             if($userSession)
+             {
+                 $userSession->delete();
+             }
+
+             Session::delete(CURRENT_USER_SESSION_NAME);
+
+             if(Cookie::exists(REMEMBER_ME_COOKIE_NAME))
+             {
+                 Cookie::delete(REMEMBER_ME_COOKIE_NAME);
+             }
+
+             self::$currentLoggedInUser = null;
+             return true;
         }
 
         public function acls() 
