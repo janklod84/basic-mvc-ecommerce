@@ -28,16 +28,18 @@ class Products extends Model
         public $id;
         public $created_at;
         public $updated_at;
+        public $user_id;
         public $name;
         public $price;
         public $list;
         public $shipping;
         public $body;
-        public $deleted = 0;
+        public $featured = 0;
+        public $deleted  = 0;
 
         
         # There fields 'll be guarded all times
-        const blackList = ['id', 'deleted'];
+        const blackList = ['id', 'deleted', 'featured'];
 
         protected static $_table = 'products';
         protected static $_softDelete = true;
@@ -86,5 +88,51 @@ class Products extends Model
                  'field' => 'shipping',
                  'msg' => 'Shipping must be a number.'
               ]));
+        }
+
+        
+        /**
+         * Find User By Id
+         * @param int $user_id 
+         * @param array $params 
+         * @return void
+        */
+        public static function findByUserId($user_id, $params = [])
+        {
+              $conditions = [
+                 'conditions' => 'user_id = ?',
+                 'bind' => [(int) $user_id],
+                 'order' => 'name'
+              ];
+
+              $params = array_merge($conditions, $params);
+              return self::find($params);
+        }
+
+        
+        /**
+         * Find item by Id or UserId
+         * @param $id
+         * @param $user_id
+         * @return bool
+        */
+        public static function findByIdAndUserId($id, $user_id)
+        {
+                $conditions = [
+                    'conditions' => "id = ? AND user_id = ?",
+                    'bind' => [(int) $id, (int) $user_id]
+                ];
+
+                return self::findFirst($conditions);
+        }
+
+        
+        /**
+         * Determine if input checked
+         * @return bool
+        */
+        public function isChecked()
+        {
+            return $this->featured === 1;
         }
 }

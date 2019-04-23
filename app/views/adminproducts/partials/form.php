@@ -23,7 +23,7 @@ use Core\FH;
             'class' => 'form-group'
     	], $this->displayErrors); ?>
 
-    
+     <?= FH::checkboxBlock('Featured', 'featured', $this->product->isChecked(), ['class' => 'form-control'], ['class' => 'form-group col-md-12'], $this->displayErrors); ?>
     <div class="row">
       <?= FH::inputBlock('file',"Upload ProductImages:",'productImages','',['class'=>'form-control','multiple'=>'multiple'],['class'=>'form-group col-md-6'], $this->displayErrors) ?>
     </div>

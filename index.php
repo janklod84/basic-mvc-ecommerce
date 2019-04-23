@@ -25,6 +25,7 @@ function dbug($arr, $die = true)
 	if(!$die) die;
 }
 
+
 /*
  | ------------------------------------------------------------
  |          LOAD CONFIGURATION AND HELPER FUNCTION

@@ -65,7 +65,7 @@ class Uploads
 	    {
 		        if(!file_exists($bucket)) 
 		        {
-		              mkdir($bucket); // mkdir($bucket, 0777, true)
+		              mkdir($bucket, 0777, true); // mkdir($bucket, 0777, true)
 		        }
 
 		        move_uploaded_file($tmp, ROOT.DS.$bucket.$name);

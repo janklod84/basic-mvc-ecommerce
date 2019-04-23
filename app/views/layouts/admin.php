@@ -9,10 +9,18 @@ use Core\Session;
     <!-- <meta http-equiv="refresh" content="20"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $this->siteTitle() ?></title>
-    <link rel="stylesheet" href="<?= PROOT ?>css/bootstrap.min.css" media="screen" title="no-title" charset="utf-8">
+    <link rel="stylesheet" href="<?= PROOT ?>css/bootstrap3/bootstrap.min.css" media="screen" title="no-title" charset="utf-8">
+     <link rel="stylesheet" href="<?= PROOT ?>css/fontawesome/css/font-awesome.min.css" media="screen" title="no-title" charset="utf-8">
     <link rel="stylesheet" href="<?= PROOT ?>css/custom.css" media="screen" title="no-title" charset="utf-8">
-    <script src="<?= PROOT ?>js/jquery-2.2.4.min.js"></script>
-    <script src="<?= PROOT ?>js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="<?=PROOT?>css/alertMsg.min.css" media="screen" title="no title" charset="utf-8">
+    <link rel="stylesheet" href="<?=PROOT?>js/jquery-ui/jquery-ui.min.css">
+
+    <!-- <script src="<?= PROOT ?>js/jquery-2.2.4.min.js"></script> -->
+    <script src="<?= PROOT ?>js/jquery-3.3.1.min.js"></script>
+    <script src="<?=PROOT?>js/popper.min.js"></script>
+    <script src="<?=PROOT?>js/bootstrap3/bootstrap.min.js"></script>
+    <script src="<?=PROOT?>js/alertMsg.min.js"></script>
+    <script type="text/javascript" src="<?=PROOT?>js/jquery-ui/jquery-ui.min.js"></script>
 
     <?= $this->content('head'); ?>
 
