@@ -1,183 +1,109 @@
-<?php 
+<?php
 namespace Core;
 
+  class View {
+    protected $_head, $_body, $_siteTitle = SITE_TITLE, $_outputBuffer, $_layout = DEFAULT_LAYOUT;
 
-/**
- * @package Core\View
-*/
-class View 
-{
-     
-	   /**
-	     * @var string
-	   */
-		 protected $head;
-
-		 /**
-		  * @var string
-		 */
-		 protected $body;
-
-		 /**
-		  * @var string
-		 */
-		 protected $siteTitle = SITE_TITLE;
-
-	     
-	     /**
-	      * @var string
-	     */
-		 protected $outputBuffer;
-
-
-		 /**
-		  * @var string
-		 */
-		 protected $layout = DEFAULT_LAYOUT;
-
-         
-     /**
-      * Constructor
-      * @return void
+    /**
+     * used to render the layout and view
+     * @method render
+     * @param  string $viewName path to view
      */
-		 public function __construct() {}
-	
+    public function render($viewName) {
+      $viewAry = explode('/', $viewName);
+      $viewString = implode(DS, $viewAry);
+      if(file_exists(ROOT . DS . 'app' . DS . 'views' . DS . $viewString . '.php')) {
+        include(ROOT . DS . 'app' . DS . 'views' . DS . $viewString . '.php');
+        include(ROOT . DS . 'app' . DS . 'views' . DS . 'layouts' . DS . $this->_layout . '.php');
+      } else {
+        die('The view \"' . $viewName . '\" does not exist.');
+      }
+    }
 
-         
-     /**
-      * View render
-      * @param string $viewName 
-      * @return mixed
+    /**
+     * Used in the layouts to embed the head and body
+     * @method content
+     * @param  string  $type can be head or body
+     * @return string       returns the output buffer of head and body
      */
-		 public function render($viewName)
-		 {
-		 	       $viewArray = explode('/', $viewName);
-             $viewString = implode(DS, $viewArray);
+    public function content($type) {
+      if($type == 'head') {
+        return $this->_head;
+      } elseif($type == 'body') {
+        return $this->_body;
+      }
+      return false;
+    }
 
-             $viewPath = ROOT . DS . 'app' . DS . 'views' . DS . $viewString . '.php';
-             $layoutPath = ROOT . DS . 'app' . DS . 'views' . DS . 'layouts' . DS . $this->layout . '.php';
-
-             if(file_exists($viewPath))
-             {
-                 	include($viewPath);
-                 	
-                 	if(file_exists($layoutPath))
-                 	{
-                 		 include($layoutPath);
-                 	}
-
-             }else{
-
-             	    die('The view \"' . $viewName . '" does not exist.');
-             }
-		 }
-
-         
-     /**
-      * Create content
-      * @param string $type 
-      * @return 
+    /**
+     * starts the output buffer for the head or body
+     * @method start
+     * @param  string $type can be head or body
      */
-		 public function content($type)
-		 {
-             if($type == 'head')
-             {
-             	  return $this->head;
+    public function start($type) {
+      $this->_outputBuffer = $type;
+      ob_start();
+    }
 
-             }elseif($type == 'body'){
-
-             	  return $this->body;
-             }
-
-             return false;
-		 }
-
-         
-     /**
-      * start type
-      * @param string $type 
-      * @return void
+    /**
+     * echos the output buffer in the layout
+     * @method end
+     * @return string rendered html for head or body
      */
-		 public function start($type)
-		 {
-         $this->outputBuffer = $type;
-         ob_start();
-		 }
-         
+    public function end() {
+      if($this->_outputBuffer == 'head') {
+        $this->_head = ob_get_clean();
+      } elseif($this->_outputBuffer == 'body') {
+        $this->_body = ob_get_clean();
+      } else {
+        die('You must first run the start method.');
+      }
+    }
 
-     /**
-      * end started part
-      * @return void
+    /**
+     * Getter for the site title
+     * @method siteTitle
+     * @return string    site title set in the view object
      */
-		 public function end()
-		 {
-    		 	 if($this->outputBuffer == 'head')
-    		 	 {
-    		 	 	  $this->head = ob_get_clean();
+    public function siteTitle() {
+      return $this->_siteTitle;
+    }
 
-    		 	 }elseif($this->outputBuffer == 'body'){
-
-    		 	 	  $this->body = ob_get_clean();
-
-    		 	 }else{
-
-    		 	 	   die('You must first run the start method.');
-    		 	 }
-		 }
-
-
-     /**
-      * Render site title
-      * @return string
+    /**
+     * Sets the page title
+     * @method setSiteTitle
+     * @param  string   $title used for the title
      */
-     public function siteTitle()
-     {
-         return $this->siteTitle;
+    public function setSiteTitle($title) {
+      $this->_siteTitle = $title;
+    }
+
+    /**
+     * sets the layout to be loaded
+     * @method setLayout
+     * @param  string    $path name of layout
+     */
+    public function setLayout($path) {
+      $this->_layout = $path;
+    }
+
+    /**
+     * inserts a partial into another partial
+     * @method insert
+     * @param  string $path path to view example register/register
+     */
+    public function insert($path){
+      include ROOT . DS . 'app' . DS . 'views' . DS . $path . '.php';
      }
 
-
-     /**
-      * set site title
-      * @param string $title 
-      * @return void
+    /**
+     * inserts a partial into a view
+     * @method partial
+     * @param  string  $group   view sub directory
+     * @param  string  $partial partial name
      */
-		 public function setSiteTitle($title)
-		 {
-		 	    $this->siteTitle = $title;
-		 }
+    public function partial($group, $partial){
+      include ROOT . DS . 'app' . DS . 'views' . DS . $group . DS . 'partials' . DS . $partial . '.php';
+    }
 
-
-		 /**
-        * set layout
-        * @param string $path 
-        * @return void
-     */
-		 public function setLayout($path)
-		 {
-		 	     $this->layout = $path;
-		 }
-
-     
-     /**
-      * Insert some parts
-      * @param string $path 
-      * @return void
-     */
-     public function insert($path)
-     {
-         include ROOT . DS . 'app' . DS . 'views' . DS . $path . '.php';
-     }
-
-
-     
-     /**
-      * Insert partials
-      * @param string $group
-      * @param string $partial
-      * @return void
-     */
-     public function partial($group, $partial)
-     {
-          include ROOT . DS . 'app' . DS . 'views' . DS . $group . DS .'partials' . DS . $partial . '.php';
-     }
-}
+  }

@@ -1,24 +1,15 @@
-<?php 
+<?php
 namespace Core\Validators;
-
 use Core\Validators\CustomValidator;
 
+class NumericValidator extends CustomValidator {
 
-/**
- * @package Core\Validators\NumericValidator
-*/
-
-class NumericValidator  extends CustomValidator
-{
-       
-       /**
-        * Run Validation
-        * @return bool
-       */
-       public function runValidation()
-       {
-           $value = $this->_model->{$this->field};
-           $pass = !empty($value) ? is_numeric($value) : true;
-           return $pass;
-       }
+  public function runValidation(){
+    $value = $this->_model->{$this->field};
+    $pass = true;
+    if(!empty($value)){
+      $pass = is_numeric($value);
+    }
+    return $pass;
+  }
 }

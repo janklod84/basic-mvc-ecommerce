@@ -1,24 +1,15 @@
-<?php 
-namespace App\Controllers;
+<?php
+  namespace App\Controllers;
+  use Core\Controller;
+  use App\Models\Products;
+  use Core\H;
 
-use Core\Controller;
-use App\Models\Users;
-use Core\H;
+  class HomeController extends Controller {
 
-
-
-class HomeController extends Controller 
-{
-
-
-
-      /**
-       * index action
-       * @return mixed
-      */
-  	  public function indexAction()
-  	  {
-           $this->view->render('home/index');
-  	  }
-
-}
+    public function indexAction() {
+      $pModel = new Products();
+      $products = $pModel->featuredProducts();
+      $this->view->products = $products;
+      $this->view->render('home/index');
+    }
+  }

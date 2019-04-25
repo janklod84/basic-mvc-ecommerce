@@ -1,24 +1,15 @@
-<?php 
+<?php
 namespace Core\Validators;
-
 use Core\Validators\CustomValidator;
 
+class EmailValidator extends CustomValidator {
 
-
-/**
- * @package Core\Validators\EmailValidator
-*/
-class EmailValidator  extends CustomValidator
-{
-       
-       /**
-        * Run Validation
-        * @return bool
-       */
-       public function runValidation()
-       {
-           $email = $this->_model->{$this->field};
-           $pass = !empty($email) ? filter_var($email, FILTER_VALIDATE_EMAIL) : true;
-           return $pass;
-       }
+  public function runValidation(){
+    $email = $this->_model->{$this->field};
+    $pass = true;
+    if(!empty($email)){
+      $pass = filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
+    return $pass;
+  }
 }

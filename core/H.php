@@ -1,101 +1,55 @@
-<?php 
+<?php
 namespace Core;
-
 
 use App\Models\Users;
 
-/**
- * Helper
- * @package Core\H
-*/
-class H 
-{
+class H {
+  public static function dnd($data) {
+    echo '<pre>';
+    var_dump($data);
+    echo '</pre>';
+    die();
+  }
 
+  public static function currentPage() {
+    $currentPage = $_SERVER['REQUEST_URI'];
+    if($currentPage == PROOT || $currentPage == PROOT. strtolower(DEFAULT_CONTROLLER) .'/index') {
+      $currentPage = PROOT . strtolower(DEFAULT_CONTROLLER);
+    }
+    return $currentPage;
+  }
 
-			/**
-			 * public static function s for pretty print array data
-			 * @param array $data
-			 * @param bool $die
-			*/
-			public static function  dnd($data)
-			{
-			    echo '<pre>';
-			    var_dump($data);
-			    echo '</pre>';
-			    die();
-			}
+  public static function getObjectProperties($obj){
+    return get_object_vars($obj);
+  }
 
-
-            /**
-             * Debug data
-             * @param mixed $data 
-             * @param bool $die 
-             * @return void
-            */
-		    public static function  debug($data, $die = true)
-		    {
-				 echo '<pre>';
-			     print_r($data);
-			     echo '</pre>';
-			     if($die) die;
-		    }
-
-
-
-			/**
-			 * Return current page
-			 * @return string
-			*/
-			public static function currentPage() 
-			{
-			    $currentPage = $_SERVER['REQUEST_URI'];
-			    if($currentPage == PROOT || $currentPage == PROOT. strtolower(DEFAULT_CONTROLLER) .'/index') {
-			      $currentPage = PROOT . strtolower(DEFAULT_CONTROLLER);
-			    }
-			    return $currentPage;
-            }
-
-
-			/**
-			 * Get object properties
-			 * @param object $obj 
-			 * @return mixed
-			*/
-			public static function  getObjectProperties($obj)
-			{
-			    return get_object_vars($obj);
-			}
-
-
-			public static function buildMenuListItems($menu,$dropdownClass="")
-			{
-			    ob_start();
-			    $currentPage = self::currentPage();
-			    foreach($menu as $key => $val):
-			      $active = '';
-			      if($key == '%USERNAME%')
-			      {
-			         $key = (Users::currentUser()) ? "Hello " .Users::currentUser()->fname : $key;
-			      }
-			      if(is_array($val)): ?>
-			        <li class="dropdown">
-			          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?=$key?> <span class="caret"></span></a>
-			          	<ul class="<?=$dropdownClass?>">
-			            <?php foreach($val as $k => $v):
-			              $active = ($v == $currentPage)? 'active':''; ?>
-			              <?php if($k == 'separator'): ?>
-			                <li role="separator" class="divider"></li>
-			              <?php else: ?>
-			                <li><a class="<?= $active ?>" href="<?= $v ?>"><?= $k ?></a></li>
-			              <?php endif; ?>
-			            <?php endforeach; ?>
-			          </ul>
-			         </li>
-				      <?php else:
-				        $active = ($val == $currentPage)? 'active':''; ?>
-				        <li><a class="<?= $active ?>" href="<?= $val ?>"><?= $key ?></a></li>
-				      <?php endif; ?>
-				    <?php endforeach;
-				    return ob_get_clean();
-  		  }
+  public static function buildMenuListItems($menu,$dropdownClass=""){
+    ob_start();
+    $currentPage = self::currentPage();
+    foreach($menu as $key => $val):
+      $active = '';
+      if($key == '%USERNAME%'){
+        $key = (Users::currentUser())? "Hello " .Users::currentUser()->fname : $key;
+      }
+      if(is_array($val)): ?>
+        <li class="nav-item dropdown">
+          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?=$key?></a>
+          <div class="dropdown-menu <?=$dropdownClass?>">
+            <?php foreach($val as $k => $v):
+              $active = ($v == $currentPage)? 'active':''; ?>
+              <?php if(substr($k,0,9) == 'separator'): ?>
+                <div role="separator" class="dropdown-divider"></div>
+              <?php else: ?>
+                <a class="dropdown-item <?=$active?>" href="<?=$v?>"><?=$k?></a>
+              <?php endif; ?>
+            <?php endforeach; ?>
+          </div>
+        </li>
+      <?php else:
+        $active = ($val == $currentPage)? 'active':''; ?>
+        <li class="nav-item"><a class="nav-link <?=$active?>" href="<?=$val?>"><?=$key?></a></li>
+      <?php endif; ?>
+    <?php endforeach;
+    return ob_get_clean();
+  }
 }

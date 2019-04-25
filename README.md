@@ -1,4 +1,1 @@
-# login system
-
-login: janklod	
-password: janklod
+Welcome to Ruah PHP!

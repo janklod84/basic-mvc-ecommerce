@@ -1,3 +1,3 @@
-<?php $this->start('body'); ?>
+<?php $this->start('body')?>
 Dashboard
 <?php $this->end(); ?>

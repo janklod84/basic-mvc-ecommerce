@@ -1,20 +1,22 @@
 {
-	"Guest" : {
-		"denied" : {},
-		"Home" : ["*"],
-		"Register" : ["login", "register"],
-		"Restricted" : ["*"]
-	},
-	"LoggedIn": {
-		"denied" : {
-			"Register" : ["login", "register"]
-		},
-		"Products" : ["*"],
-		"Register" : ["logout"]
-	},
-	"SuperAdmin" : {
-		"denied" : {},
-		"Admindashboard" : ["*"],
-		"Adminproducts" : ["*"]
-	}
+  "Guest" : {
+    "denied" : {},
+    "Home" : ["*"],
+    "Products" : ["*"],
+    "Cart" : ["*"],
+    "Register" : ["login", "register"],
+    "Restricted" : ["*"]
+  },
+  "LoggedIn" : {
+    "denied" : {
+      "Register" : ["login", "register"]
+    },
+    "Register" : ["logout"]
+  },
+  "SuperAdmin" : {
+    "denied" : {},
+    "Admindashboard" : ["*"],
+    "Adminproducts" : ["*"],
+    "Adminbrands" : ["*"]
+  }
 }

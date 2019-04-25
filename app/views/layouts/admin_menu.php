@@ -5,27 +5,20 @@
   $menu = Router::getMenu('admin_menu_acl');
   $userMenu = Router::getMenu('user_menu');
 ?>
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main_menu" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="<?= PROOT ?>admindashboard">Admin Portal</a>
-    </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top mb-5">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_menu" aria-controls="main_menu" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="<?=PROOT?>home"><?=MENU_BRAND?></a>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="main_menu">
-      <ul class="nav navbar-nav">
-        <?= H::buildMenuListItems($menu, "dropdown-menu"); ?>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <?= H::buildMenuListItems($userMenu, "dropdown-menu"); ?>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse" id="main_menu">
+    <ul class="navbar-nav mr-auto">
+      <?= H::buildMenuListItems($menu); ?>
+    </ul>
+    <ul class="navbar-nav mr-2">
+      <?= H::buildMenuListItems($userMenu,"dropdown-menu-right"); ?>
+    </ul>
+  </div><!-- /.navbar-collapse -->
 </nav>

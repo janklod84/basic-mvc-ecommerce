@@ -1,41 +1,21 @@
-<?php 
-namespace App\Controllers;
+<?php
+  namespace App\Controllers;
+  use Core\Controller;
+  use Core\Router;
+  use Core\Session;
+  use App\Models\Products;
+  use Core\H;
 
+  class ProductsController extends Controller {
 
-use Core\Controller;
-use Core\H;
-
-
-/* http://eshop.loc/products/ */
-class ProductsController extends Controller 
-{
-       
-         /**
-          * Constructor
-          * @param object $controller 
-          * @param string $action 
-          * @return void
-         */
-    	   public function __construct($controller, $action)
-    	   {
-              parent::__construct($controller, $action);
-              $this->loadModel("Products");
-    	   }
-
-
-  	    /**
-         * details action
-         * @param int $product_id
-         * @return mixed
-        */
-    	  public function detailsAction($product_id = null)
-    	  {
-            $product = $this->ProductsModel->findFirst([
-                 'conditions' => "id = ?",
-                 'bind' => [(int)$product_id]
-            ]);
-            
-            $this->view->product = $product;
-            $this->view->render('products/details');
-    	  }
-}
+    public function detailsAction($product_id) {
+      $product = Products::findById((int)$product_id);
+      if(!$product){
+        Session::addMsg('danger',"Oops...that product isn't available.");
+        Router::redirect('/home');
+      }
+      $this->view->product = $product;
+      $this->view->images = $product->getImages();
+      $this->view->render('products/details');
+    }
+  }

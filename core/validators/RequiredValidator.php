@@ -1,25 +1,11 @@
-<?php 
+<?php
 namespace Core\Validators;
-
-
 use Core\Validators\CustomValidator;
 
-
-
-/**
- * @package Core\Validators\RequiredValidator
-*/
-class RequiredValidator  extends CustomValidator
-{
-       
-       /**
-        * Run Validation
-        * @return bool
-       */
-       public function runValidation()
-       {
-           $value = $this->_model->{$this->field};
-           $pass  = (!empty($value));
-           return $pass;
-       }
+class RequiredValidator extends CustomValidator {
+  public function runValidation(){
+    $value = trim($this->_model->{$this->field});
+    $passes = ($value != '' && isset($value));
+    return $passes;
+  }
 }

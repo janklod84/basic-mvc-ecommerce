@@ -1,25 +1,13 @@
-<?php 
+<?php
 namespace Core\Validators;
-
-
 use Core\Validators\CustomValidator;
 
+class MinValidator extends CustomValidator {
 
-/**
- * @package Core\Validators\MinValidator
-*/
+  public function runValidation(){
+    $value = $this->_model->{$this->field};
+    $pass = (strlen($value) >= $this->rule);
+    return $pass;
+  }
 
-class MinValidator  extends CustomValidator
-{
-       
-       /**
-        * Run Validation
-        * @return bool
-       */
-       public function runValidation()
-       {
-           $value = $this->_model->{$this->field};
-           $pass  = (strlen($value) >= $this->rule);
-           return $pass;
-       }
 }

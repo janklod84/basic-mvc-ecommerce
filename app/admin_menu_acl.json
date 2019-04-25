@@ -1,9 +1,10 @@
 {
-	"Dashboard" : "admindashboard/index",
-	"Products" : {
-        "View Products" : "adminproducts/index",
-        "separator" : " ",
-        "Add Product" : "adminproducts/add"
-	},
-	"Visit Site" : "home/index"
+  "Dashboard" : "admindashboard/index",
+  "Products" : {
+    "View Products" : "adminproducts/index",
+    "seperator" : " ",
+    "Add Product" : "adminproducts/add"
+  },
+  "Brands" : "adminbrands/index",
+  "Visit Site" : "home/index"
 }

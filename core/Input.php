@@ -1,94 +1,41 @@
-<?php 
+<?php
 namespace Core;
-
-
 use Core\FH;
 use Core\Router;
 
+class Input {
 
+  public function isPost(){
+    return $this->getRequestMethod() === 'POST';
+  }
 
-/**
- * This class it's like class Request
- * @package Core\Input
-*/
-class Input 
-{
-       
-       /**
-        * Determine if request is post
-        * @return bool
-       */
-       public function isPost()
-       {
-           return $this->getRequestMethod() === 'POST';
-       }
+  public function isPut(){
+    return $this->getRequestMethod() === 'PUT';
+  }
 
+  public function isGet(){
+    return $this->getRequestMethod() === 'GET';
+  }
 
-       /**
-        * Determine if request is put
-        * @return bool
-       */
-       public function isPut()
-       {
-           return $this->getRequestMethod() === 'PUT';
-       }
+  public function getRequestMethod(){
+    return strtoupper($_SERVER['REQUEST_METHOD']);
+  }
 
+  public function get($input=false) {
+    if(!$input){
+      // return entire request array and sanitize it
+      $data = [];
+      foreach($_REQUEST as $field => $value){
+        $data[$field] = trim(FH::sanitize($value));
+      }
+      return $data;
+    }
 
-       /**
-        * Determine if request is get
-        * @return bool
-       */
-       public function isGet()
-       {
-           return $this->getRequestMethod() === 'GET';
-       }
+    return (array_key_exists($input,$_REQUEST))?trim(FH::sanitize($_REQUEST[$input])) : '';
+  }
 
-       
-       /**
-        * Return Request method
-        * @return string
-       */
-       public function getRequestMethod()
-       {
-       	   return strtoupper($_SERVER['REQUEST_METHOD']);
-       }
-
-
-       /**
-        * Sanitize requests data
-        * @param string $input 
-        * @return string
-       */
-	   public function get($input = false)
-	   {
-	   	   if(!$input)
-	   	   {
-	   	   	   // return entiere request array and sanitize it
-	   	   	   $data = [];
-	   	   	   foreach($_REQUEST as $field => $value)
-	   	   	   {
-	   	   	   	   $data[$field] = FH::sanitize($value);
-	   	   	   }
-	   	   	   return $data;
-	   	   }
-
-	   	   return FH::sanitize($_REQUEST[$input]);
-	   }
-
-
-       /**
-        * Check if has valid token
-        * @return mixed
-       */
-	   public function csrfCheck()
-	   {
-	   	   if(!FH::checkToken($this->get('csrf_token')))
-	   	   {
-	   	   	    Router::redirect('restricted/badToken');
-
-	   	   }else{
-                
-                return true;
-	   	   }
-	   }
+  public function csrfCheck(){
+    if(!FH::checkToken($this->get('csrf_token'))) Router::redirect('restricted/badToken');
+    return true;
+  }
 }

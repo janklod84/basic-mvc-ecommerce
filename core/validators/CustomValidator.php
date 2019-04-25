@@ -1,105 +1,46 @@
-<?php 
+<?php
 namespace Core\Validators;
-
-
 use \Exception;
 
+abstract class CustomValidator {
+  public $success=true, $msg='', $field, $additionalFieldData=[],$rule;
+  protected $_model;
 
-/**
- * @package Core\Validators\CustomValidator
-*/
-abstract class CustomValidator 
-{
-       
-       /**
-        * @var bool
-       */
-       public $success = true;
+  public function __construct($model,$params){
+    $this->_model = $model;
 
+    if(!array_key_exists('field',$params)){
+      throw new Exception("You must add a field to the params array.");
+    } else {
+      if(is_array($params['field'])){
+        $this->field = $params['field'][0];
+        array_shift($params['field']);
+        $this->additionalFieldData = $params['field'];
+      } else {
+        $this->field = $params['field'];
+      }
+    }
 
-       /**
-        * @var string
-       */
-       public $msg = '';
+    if(!property_exists($model, $this->field)){
+      throw new Exception("The field must exist in the model");
+    }
 
+    if(!array_key_exists('msg',$params)){
+      throw new Exception("You must add a msg to the params array.");
+    } else {
+      $this->msg = $params['msg'];
+    }
 
-       /**
-        * @var string
-       */
-       public $field;
+    if(array_key_exists('rule',$params)){
+      $this->rule = $params['rule'];
+    }
 
+    try {
+      $this->success = $this->runValidation();
+    } catch(Exception $e) {
+      echo "Validation Exception on " . get_class() . ": " . $e->getMessage() . "<br />";
+    }
+  }
 
-       /**
-        * @var mixed
-       */
-       public $rule;
-
-       
-       /**
-        * @var object Model
-       */
-       protected $_model;
-
-       
-       /**
-        * Constructor
-        * @param object $model 
-        * @param array $params 
-        * @return void
-       */
-       public function __construct($model, $params)
-       {
-             $this->_model = $model;
-
-             // make sure the field exists
-             if(!array_key_exists('field', $params))
-             {
-             	   throw new Exception("You must include a field element in the params array.");
-             	   
-             }else{
-
-             	   $this->field =  is_array($params['field']) ? $params['field'][0] : $params['field'];
-             }
-             
-
-             // make sure field exists in model
-             if(!property_exists($model, $this->field))
-             {
-             	    throw new Exception("The field does not belong to the model.");
-             }
-
-             
-             // make sure the message exists in the params array
-             if(!array_key_exists('msg', $params))
-             {
-             	   throw new Exception("You must include a msg element to the params array.");
-
-             }else{
-
-             	   $this->msg = $params['msg'];
-             }
-
-             
-             // make sure the rule exists in params array
-             if(array_key_exists('rule', $params))
-             {
-             	    $this->rule = $params['rule'];
-             }
-
-
-            try {
-               
-                $this->success = $this->runValidation();
-
-             }catch(Exception $e){
-
-             	  echo "Validation Exception on " . get_class() . ': '. $e->getMessage();
-             }
-       }
-       
-       /**
-        * Run validation
-        * @return bool
-       */
-       abstract public function runValidation();
+  abstract public function runValidation();
 }
